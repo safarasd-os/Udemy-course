@@ -28,8 +28,17 @@ cloudinary.config({
 });
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-app.use(express.static(path.resolve(__dirname, "./public")));
+if (process.env.NODE_ENV === "development") {
+  app.use(morgan("dev"));
+}
+app.use(express.static(path.resolve(__dirname, "./client/dist")));
 
+app.use(cookieParser());
+app.use(express.json());
+
+app.get("/", (req, res) => {
+  res.send("Hello world");
+});
 try {
   const response = await fetch(
     "https://www.course-api.com/react-useReducer-cart-project"
@@ -40,18 +49,6 @@ try {
   console.log(error);
 }
 
-if (process.env.NODE_ENV === "development") {
-  app.use(morgan("dev"));
-}
-
-app.use(morgan("dev"));
-app.use(cookieParser());
-app.use(express.json());
-
-app.get("/", (req, res) => {
-  res.send("Hello world");
-});
-
 app.get("/api/v1/test", (req, res) => {
   res.json({ msg: "test route" });
 });
@@ -61,7 +58,7 @@ app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", authenticateUser, userRouter);
 
 app.get("*", (req, res) => {
-  res.sendFile(path.resolve(__dirname, "./public", "index.html"));
+  res.sendFile(path.resolve(__dirname, "./client/dist", "index.html"));
 });
 
 app.use("*", (req, res) => {
