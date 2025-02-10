@@ -1,26 +1,34 @@
-import { Outlet, redirect, useLoaderData, useNavigate } from "react-router-dom";
+import {
+  Outlet,
+  redirect,
+  useLoaderData,
+  useNavigate,
+  useNavigation,
+} from "react-router-dom";
 import customFetch from "../utils/customFetch";
 import Wrapper from "../assets/wrappers/Dashboard";
-import { BigSidebar, Navbar, SmallSidebar } from "../components";
+import { BigSidebar, Loading, Navbar, SmallSidebar } from "../components";
 import { useState, createContext } from "react";
 import { useContext } from "react";
 import { checkDefaultTheme } from "../App";
 import { toast } from "react-toastify";
 
-export const loader = async() => {
+export const loader = async () => {
   try {
-    const {data} = await customFetch.get('/users/current-user');
-    return data
-  } catch (error){
-    return redirect('/')
+    const { data } = await customFetch.get("/users/current-user");
+    return data;
+  } catch (error) {
+    return redirect("/");
   }
 };
 
 const DashboardContext = createContext();
 
 const DashboardLayout = () => {
-  const {user} = useLoaderData()
+  const { user } = useLoaderData();
   const navigate = useNavigate();
+  const navigation = useNavigation();
+  const isPageLoading = navigation.state === "loading";
   const [showSidebar, setShowSidebar] = useState(false);
   const [isDarkTheme, setIsDarkTheme] = useState(checkDefaultTheme());
 
@@ -34,9 +42,9 @@ const DashboardLayout = () => {
     setShowSidebar(!showSidebar);
   };
   const logoutUser = async () => {
-    navigate('/')
-    await customFetch.get('/auth/logout')
-    toast.success('Logging out')
+    navigate("/");
+    await customFetch.get("/auth/logout");
+    toast.success("Logging out");
   };
 
   return (
@@ -57,7 +65,7 @@ const DashboardLayout = () => {
           <div>
             <Navbar />
             <div className="dashboard-page">
-              <Outlet context={{user}} />
+              {isPageLoading ? <Loading /> : <Outlet context={{ user }} />}
             </div>
           </div>
         </main>
